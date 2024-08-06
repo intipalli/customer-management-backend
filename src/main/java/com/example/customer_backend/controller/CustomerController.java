@@ -19,6 +19,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.Date;
+import java.util.Iterator;
 
 @RestController
 @RequestMapping("/api")
@@ -42,6 +43,21 @@ public class CustomerController {
     @GetMapping("/customers/{customerId}")
     public java.util.Optional<Customer> getCustomerById(@PathVariable("customerId") long id) {
         return customersRepository.findById(id);
+    }
+
+    @GetMapping("/customers/byname/{username}")
+    public ResponseEntity<?> getCustomerByName(@PathVariable("username") String name, UriComponentsBuilder uri) {
+        
+        Iterator<Customer> customers = customersRepository.findAll().iterator();
+		while(customers.hasNext()) {
+			Customer cust = customers.next();
+			if(cust.getName().equalsIgnoreCase(name)) {
+				ResponseEntity<?> response = ResponseEntity.ok(cust);
+				return response;				
+			}	
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+        
     }
 
     @PostMapping("/customers")
