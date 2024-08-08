@@ -51,7 +51,7 @@ public class CustomerController {
         Iterator<Customer> customers = customersRepository.findAll().iterator();
 		while(customers.hasNext()) {
 			Customer cust = customers.next();
-			if(cust.getName().equalsIgnoreCase(name)) {
+			if(cust.getEmail().equalsIgnoreCase(name)) {
 				ResponseEntity<?> response = ResponseEntity.ok(cust);
 				return response;				
 			}	
@@ -65,6 +65,7 @@ public class CustomerController {
         if (newCustomer.getId() != 0 || newCustomer.getName() == null || newCustomer.getEmail() == null) {
             return ResponseEntity.badRequest().build();
         }
+        
         newCustomer = customersRepository.save(newCustomer);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
                 .buildAndExpand(newCustomer.getId()).toUri();

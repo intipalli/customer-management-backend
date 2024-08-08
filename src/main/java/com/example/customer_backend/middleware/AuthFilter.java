@@ -26,20 +26,10 @@ public class AuthFilter implements Filter {
         HttpServletRequest req = (HttpServletRequest) request;
         HttpServletResponse res = (HttpServletResponse) response;
         String uri = req.getRequestURI();
+        String method = req.getMethod();
 
-        String tokenheader = req.getHeader("tokencheck");
-        if (tokenheader != null && !tokenheader.equalsIgnoreCase("true")) {
-            chain.doFilter(request, response);
-            return;
-        }
-
-        // Auth checking will not apply to these cases
-        if (!uri.startsWith("/api/events")
-                && !uri.startsWith("/api/registrations")
-                && !uri.equals("/api/customers")) {
-            chain.doFilter(request, response);
-            return;
-        } else {
+        // Check JWT token for secured endpoints
+        if (uri.startsWith("/api/customers")) {
             // Check JWT token
             String authheader = req.getHeader("authorization");
             if (authheader != null && authheader.length() > 7 && authheader.startsWith("Bearer")) {
@@ -49,7 +39,11 @@ public class AuthFilter implements Filter {
                     return;
                 }
             }
+        } else {
+            chain.doFilter(request, response);
+            return;
         }
+
         res.sendError(HttpServletResponse.SC_FORBIDDEN, "failed authentication");
     }
 }
